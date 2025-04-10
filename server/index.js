@@ -27,7 +27,6 @@ async function startServer() {
       const { render } = await vite.ssrLoadModule('/src/entry-server.jsx');
       const { fetchData } = await vite.ssrLoadModule('/src/pages/server-side-rendering.jsx');
       const data = await fetchData();
-      console.log(data);
 
       const appHtml = render(url, data);
 
