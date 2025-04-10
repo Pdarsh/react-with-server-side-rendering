@@ -3,7 +3,6 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
-import axios from 'axios';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -24,15 +23,12 @@ async function startServer() {
       let template = fs.readFileSync(templatePath, 'utf-8');
       template = await vite.transformIndexHtml(url, template);
 
-      let data = [];
-      try {
-        const response = await axios.get('https://jsonplaceholder.typicode.com/users');
-        data = response.data;
-      } catch {
-        data = [];
-      }
-
+      // 👇 Import and call fetchData from the component
       const { render } = await vite.ssrLoadModule('/src/entry-server.jsx');
+      const { fetchData } = await vite.ssrLoadModule('/src/pages/server-side-rendering.jsx');
+      const data = await fetchData();
+      console.log(data);
+
       const appHtml = render(url, data);
 
       const html = template

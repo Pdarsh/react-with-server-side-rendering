@@ -1,13 +1,13 @@
 import React from 'react';
+import axios from 'axios';
 
-const ServerSideRendering = ({ data = [] }) => {
+const ServerSideRendering = ({ data }) => {
   return (
     <div>
       <h1>Server-Side Rendering</h1>
-      <p>This data is fetched on the server side and sends html file</p>
-      {data.length > 0 ? (
+      {data?.length > 0 ? (
         <ul>
-          {data.map((user) => (
+          {data.map(user => (
             <li key={user.id}>{user.name}</li>
           ))}
         </ul>
@@ -17,5 +17,16 @@ const ServerSideRendering = ({ data = [] }) => {
     </div>
   );
 };
+
+// Simulate getServerSideProps
+// eslint-disable-next-line react-refresh/only-export-components
+export async function fetchData() {
+  try {
+    const res = await axios.get('https://jsonplaceholder.typicode.com/users');
+    return res.data;
+  } catch {
+    return null;
+  }
+}
 
 export default ServerSideRendering;
