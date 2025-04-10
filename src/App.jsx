@@ -5,13 +5,13 @@ import ServerSideRendering from './pages/server-side-rendering';
 import Virtualization from './pages/virtualization';
 import NavBar from './components/navbar';
 
-function App() {
+function App({ data }) {
   return (
     <>
       <NavBar />
       <Routes>
         <Route path="/client-side-rendering" element={<ClientSideRendering />} />
-        <Route path="/server-side-rendering" element={<ServerSideRendering />} />
+        <Route path="/server-side-rendering" element={<ServerSideRendering data={data} />} />
         <Route path="/virtualization" element={<Virtualization />} />
       </Routes>
     </>

@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
+import axios from 'axios';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -19,15 +20,25 @@ async function startServer() {
   app.get('/server-side-rendering', async (req, res) => {
     try {
       const url = req.originalUrl;
-
       const templatePath = path.resolve(__dirname, '../index.html');
       let template = fs.readFileSync(templatePath, 'utf-8');
       template = await vite.transformIndexHtml(url, template);
 
-      const { render } = await vite.ssrLoadModule('/src/entry-server.jsx');
-      const appHtml = render(url);
+      let data = [];
+      try {
+        const response = await axios.get('https://jsonplaceholder.typicode.com/users');
+        data = response.data;
+      } catch {
+        data = [];
+      }
 
-      const html = template.replace('<!--app-->', appHtml);
+      const { render } = await vite.ssrLoadModule('/src/entry-server.jsx');
+      const appHtml = render(url, data);
+
+      const html = template
+        .replace('<!--app-->', appHtml)
+        .replace('__INITIAL_DATA__', JSON.stringify(data));
+
       res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
     } catch (err) {
       vite.ssrFixStacktrace(err);
@@ -37,20 +48,12 @@ async function startServer() {
   });
 
   const clientRoutes = ['/', '/client-side-rendering', '/virtualization'];
-
   clientRoutes.forEach((route) => {
     app.get(route, async (req, res) => {
-      try {
-        const templatePath = path.resolve(__dirname, '../index.html');
-        let template = fs.readFileSync(templatePath, 'utf-8');
-        template = await vite.transformIndexHtml(req.url, template);
-  
-        res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
-      } catch (err) {
-        vite.ssrFixStacktrace(err);
-        console.error('Client route error:', err);
-        res.status(500).end('Internal Server Error');
-      }
+      const templatePath = path.resolve(__dirname, '../index.html');
+      let template = fs.readFileSync(templatePath, 'utf-8');
+      template = await vite.transformIndexHtml(req.url, template);
+      res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
     });
   });
 
