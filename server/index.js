@@ -54,15 +54,6 @@ async function startServer() {
     });
   });
 
-  // app.get('/*', async (req, res) => {
-  //   const url = req.originalUrl;
-  //   const templatePath = path.resolve(__dirname, '../index.html');
-  //   let template = fs.readFileSync(templatePath, 'utf-8');
-  //   template = await vite.transformIndexHtml(url, template);
-  
-  //   res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
-  // });
-
   app.listen(3000, () => {
     console.log('🚀 Server running at http://localhost:3000');
   });
